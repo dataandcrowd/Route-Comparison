@@ -71,10 +71,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#procedure" id="toc-procedure" class="nav-link active" data-scroll-target="#procedure"><span class="header-section-number">1</span> Procedure</a></li>
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages"><span class="header-section-number">2</span> Load Packages</a></li>
+  <li><a href="#load-gps-file" id="toc-load-gps-file" class="nav-link" data-scroll-target="#load-gps-file"><span class="header-section-number">3</span> Load GPS file</a></li>
+  <li><a href="#task-1-filtering-speed" id="toc-task-1-filtering-speed" class="nav-link" data-scroll-target="#task-1-filtering-speed"><span class="header-section-number">4</span> Task 1: Filtering Speed</a>
+  <ul class="collapse">
+  <li><a href="#how-to-set-the-journey-from-home" id="toc-how-to-set-the-journey-from-home" class="nav-link" data-scroll-target="#how-to-set-the-journey-from-home"><span class="header-section-number">4.1</span> How to set the journey from home?</a></li>
+  <li><a href="#how-to-set-when-they-arrive-at-school" id="toc-how-to-set-when-they-arrive-at-school" class="nav-link" data-scroll-target="#how-to-set-when-they-arrive-at-school"><span class="header-section-number">4.2</span> How to set when they arrive at School</a></li>
+  <li><a href="#finalising-trajectory" id="toc-finalising-trajectory" class="nav-link" data-scroll-target="#finalising-trajectory"><span class="header-section-number">4.3</span> Finalising Trajectory</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -95,31 +111,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 <p>Hello! Welcome to my coding page. Here, I will walk you through the process of working with GPS data. We will start by loading the necessary packages for our analysis. Each package has annotations to explain its role.</p>
-<section id="load-packages" class="level2">
-<h2 class="anchored" data-anchor-id="load-packages">Load Packages</h2>
+<section id="procedure" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Procedure</h1>
+<ol type="1">
+<li><p>Collect GPS Trajectories</p></li>
+<li><p>GPS Merge and Cleaning 1: Filtering Speed (9km/h)</p></li>
+<li><p>GPS Merge and Cleaning 2: Considering the Actual Journey</p></li>
+</ol>
+<p><del>4. Snap it on to the road network</del></p>
+<p><del>5. Superimpose NO</del><sub>2</sub></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="procedure.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Procedure (Will be updated)</figcaption>
+</figure>
+</div>
+</section>
+<section id="load-packages" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Load Packages</h1>
 <p>In this section, we load the packages required for our GPS data analysis. Below are the packages and their respective functionalities:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary packages (assuming they are already installed)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="do">## Analyse GIS vector files</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapboxapi) <span class="do">## mapbox api routing</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapsapi)   <span class="do">## google api routing</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(osrm)      <span class="do">## osm api routing</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="do">## Everything data querying cleaning &amp; plotting</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)   <span class="do">## Online mapping </span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)    <span class="do">## Online visualisation</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapview)   <span class="do">## online maps</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="do">## clean data names</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="do">## raster</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer) <span class="do">## colour codes</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(encryptr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)        <span class="do">## Analyse GIS vector files</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapboxapi) <span class="do">## mapbox api routing</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapsapi)   <span class="do">## google api routing</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(osrm)      <span class="do">## osm api routing</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse) <span class="do">## Everything data querying cleaning &amp; plotting</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)   <span class="do">## Online mapping </span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)    <span class="do">## Online visualisation</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapview)   <span class="do">## online maps</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)   <span class="do">## clean data names</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(terra)     <span class="do">## raster</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer) <span class="do">## colour codes</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(encryptr) <span class="do">## Encrypt personal information</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="load-gps-file" class="level2">
-<h2 class="anchored" data-anchor-id="load-gps-file">Load GPS file</h2>
-<p>It reads a GPS trajectory data file called “trajectory_to_school.RDS” into the ‘trajectory_raw’ data frame. It then filters this data frame to include only records with a timestamp between 7 AM (inclusive) and 9 AM (exclusive). The filtered data is stored in ‘trajectory_raw’. Additionally, a new column ‘date’ is added to the data frame, containing the date portion of the ‘timestamp’ column.</p>
-<p>The code displays the resulting ‘trajectory_raw’ data frame in the R console.</p>
-<p>Next, it loads address data from a CSV file called “address.csv” into the ‘address’ data frame. The column names are cleaned to ensure consistency, and the ‘id’ column is renamed to ‘PartID’.</p>
+<section id="load-gps-file" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Load GPS file</h1>
+<p>It reads a GPS trajectory data file called <code>trajectory_to_school.RDS</code> into the <code>trajectory_raw</code> data frame. It then filters this data frame to include only records with a timestamp between 7 AM (inclusive) and 9 AM (exclusive). The filtered data is stored in ‘trajectory_raw’. Additionally, a new column <code>date</code> is added to the data frame, containing the date portion of the <code>timestamp</code> column.</p>
+<p>The code displays the resulting <code>trajectory_raw</code> data frame in the R console.</p>
+<p>Next, it loads address data from a CSV file called “address.csv” into the ‘address’ data frame. The column names are cleaned to ensure consistency, and the <code>id</code> column is renamed to <code>PartID</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the GPS trajectory data from a saved RDS file called "trajectory_to_school.RDS"</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the data to include only records with a timestamp between 7 AM (inclusive) and 9 AM (exclusive)</span></span>
@@ -136,26 +167,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 20 × 9
    PartID           timestamp           long  lat   SpdKPH Activity SIMDQ Gender
    &lt;chr&gt;            &lt;dttm&gt;              &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;int&gt;
- 1 a8e277d7eec5cc7… 2015-12-04 07:44:33 53b1… 6da4… 0      Light    c3e6…      0
- 2 d198f5a2c373bd6… 2015-12-04 07:44:43 8efa… bb5e… 9.91   Moderate 4e14…      0
- 3 74da677718e76af… 2015-12-04 07:44:53 536b… 2d28… 3.25   Vigorous 3028…      0
- 4 002279cc355287c… 2015-12-04 07:45:03 6db3… 4abb… 1.55   Light    c8c4…      0
- 5 ae7711f8be76c06… 2015-12-04 07:45:13 c85f… 2888… 1.21   Sedenta… e8ed…      0
- 6 9506b50512aa678… 2015-12-04 07:45:23 70fd… 2931… 0.155  Light    18f8…      0
- 7 0f2e878603640d7… 2015-12-04 07:45:33 4946… 72ca… 0.414  Sedenta… 2064…      0
- 8 b387322dd0934b7… 2015-12-04 07:45:43 11f3… 2c1b… 0.0504 Light    8191…      0
- 9 5529a7f1900ddf4… 2015-12-04 07:45:53 c18d… 0f30… 0.385  Light    023d…      0
-10 bd7bc7270b1b8e9… 2015-12-04 07:46:03 b80a… 79c4… 0.220  Moderate 4fad…      0
-11 9451b0fa4010781… 2015-12-04 07:46:13 6ce3… d3e8… 0.623  Light    35d3…      0
-12 053450ebc801f54… 2015-12-04 07:46:23 2314… d36e… 0.27   Light    054f…      0
-13 2fbcda2ab673993… 2015-12-04 07:46:33 1f62… c4a2… 0.317  Light    49eb…      0
-14 49b9ead6b735a5c… 2015-12-04 07:46:43 a02c… d578… 0.508  Light    c2b0…      0
-15 c2eca5559f94c53… 2015-12-04 07:46:53 93b6… cfbd… 0.0396 Sedenta… d119…      0
-16 61b80420f00aa40… 2015-12-04 07:47:03 0ac3… c056… 0.886  Sedenta… cd2f…      0
-17 bb0b46ebda8e28f… 2015-12-04 07:47:13 900e… c892… 1.26   Light    2986…      0
-18 da90d01dfff2039… 2015-12-04 07:47:23 442f… e696… 1.19   Light    9f8f…      0
-19 1e4c3ac7155194b… 2015-12-04 07:47:33 71bb… b2c7… 1.04   Light    a5cb…      0
-20 8ccfa2de069ef1d… 2015-12-04 07:47:43 49a0… 6e5a… 0.713  Sedenta… 45ad…      0
+ 1 3987db85bda1eb4… 2015-12-04 07:44:33 31d8… 3fdb… 0      Light    7a5a…      0
+ 2 66f8af4ab3c4e7a… 2015-12-04 07:44:43 0adb… 68b5… 9.91   Moderate cc5a…      0
+ 3 8b35180b95ec878… 2015-12-04 07:44:53 3f0a… 0bf4… 3.25   Vigorous 49c0…      0
+ 4 c7b609cf2247cda… 2015-12-04 07:45:03 6d8a… 3fbb… 1.55   Light    0b0b…      0
+ 5 854c571193fa115… 2015-12-04 07:45:13 93c3… 6f6d… 1.21   Sedenta… b19a…      0
+ 6 d7accca25ea4018… 2015-12-04 07:45:23 be26… e6ec… 0.155  Light    065e…      0
+ 7 2c86ca49913ceec… 2015-12-04 07:45:33 1bf8… 18d8… 0.414  Sedenta… 0f9f…      0
+ 8 48be79caf5a587a… 2015-12-04 07:45:43 4da5… 2cd7… 0.0504 Light    5f2e…      0
+ 9 d7c3687ec1fa0f2… 2015-12-04 07:45:53 d6e9… 0009… 0.385  Light    dd17…      0
+10 c5822915ef2e2c8… 2015-12-04 07:46:03 9314… a4ca… 0.220  Moderate 3cf8…      0
+11 25f4224881b91a8… 2015-12-04 07:46:13 c67d… 58bc… 0.623  Light    08b0…      0
+12 0c8d005a4d4ea38… 2015-12-04 07:46:23 b353… e84f… 0.27   Light    a002…      0
+13 bb60086e6ec3b0d… 2015-12-04 07:46:33 d3a3… b477… 0.317  Light    9cda…      0
+14 4a472ff697c5275… 2015-12-04 07:46:43 12e1… ea1c… 0.508  Light    3bb5…      0
+15 a669f6bef6f3885… 2015-12-04 07:46:53 0035… e5f9… 0.0396 Sedenta… 6424…      0
+16 5a4a535e39779c4… 2015-12-04 07:47:03 8594… 3afd… 0.886  Sedenta… 1ff9…      0
+17 9507126ef9da78e… 2015-12-04 07:47:13 1ba9… 5f9e… 1.26   Light    4374…      0
+18 b7aa0d36608d7c8… 2015-12-04 07:47:23 38f0… 96cd… 1.19   Light    2cea…      0
+19 0e88c188d3548ca… 2015-12-04 07:47:33 1f54… 9704… 1.04   Light    40f5…      0
+20 2526e80aa0edcf5… 2015-12-04 07:47:43 2076… 3244… 0.713  Sedenta… 4b30…      0
 # ℹ 1 more variable: date &lt;date&gt;</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load address data from a CSV file called "address.csv"</span></span>
@@ -165,9 +196,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">PartID =</span> id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="speed" class="level2">
-<h2 class="anchored" data-anchor-id="speed">Speed</h2>
-<p>This code creates a scatter plot showing the GPS trajectory points for a specific ‘PartID’ (“XXX”) from the ‘spaces_under_9km’ data frame. It colors the points based on the date, and it also adds blue and red points to represent the home and school locations, respectively. Finally, it converts the ggplot2 plot to an interactive plot using ggplotly.</p>
+<section id="task-1-filtering-speed" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Task 1: Filtering Speed</h1>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="GPS_Filter_1.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Flow Algorithm to filter out Speed over 9km/h</figcaption>
+</figure>
+</div>
+<p>This code creates a scatter plot showing the GPS trajectory points for a specific ‘PartID’ (“XXX”) from the <code>spaces_under_9km</code> data frame. It colors the points based on the date, and it also adds blue and red points to represent the home and school locations, respectively. In the context of the Air Pollution Study, we provide a comprehensive list of all valid dates for each child. However, for the Route Choice Study, we select only one of the valid days for analysis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform several data manipulation steps on the 'trajectory_raw' data frame:</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Group the data by 'PartID'.</span></span>
@@ -194,183 +231,136 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the ggplot2 plot 'a' to an interactive plot using ggplotly.</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="trajectory" class="level2">
-<h2 class="anchored" data-anchor-id="trajectory">Trajectory</h2>
-<p>In this code, you are first loading your raw GPS data from a CSV file, renaming a column, and then filtering out rows with a “Remove” label. After that, you extract and convert the date information. Finally, you perform a left join with another dataset named ‘trajectory’ based on ‘PartID’ and ‘date’ columns.</p>
-<p>Next code prepares your trajectory data for spatial analysis, including converting it into a spatial dataframe with the specified CRS and creating a time sequence for each ‘PartID’. Finally, it visualizes the trajectory for ‘PartID’ “XXX” using the ‘mapview’ function. Make sure you have the ‘sf’ and ‘mapview’ libraries loaded for this code to work correctly.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the CSV file containing raw GPS data and rename the 'Decision (YYYY-MM-DD)' column to 'date'.</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>report_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"SPACES GPS Report for walking - SPACES.csv"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date =</span> <span class="st">`</span><span class="at">Decision (YYYY-MM-DD)</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 141 Columns: 5
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-chr (4): PartID, Are there any valid dates for walking?, Decision (YYYY-MM-D...
-dbl (1): How many days were valid
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out rows where 'date' is labeled as "Remove", </span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the last 10 characters as the date string, and convert it to a Date object.</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>report_raw <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>date <span class="sc">==</span> <span class="st">"Remove"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">str_sub</span>(date, <span class="at">start =</span> <span class="sc">-</span><span class="dv">10</span>),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">date =</span> <span class="fu">ymd</span>(date)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PartID, date) <span class="ot">-&gt;</span> report</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Left join the 'report' data with another dataset called 'trajectory' based on 'PartID' and 'date' columns.</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>report <span class="sc">%&gt;%</span> </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(trajectory_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"PartID"</span>, <span class="st">"date"</span>))  <span class="ot">-&gt;</span> trajectory</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop rows with missing values in the 'trajectory' dataset.</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>trajectory <span class="sc">%&gt;%</span> </span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert the dataset to a spatial dataframe, specifying the longitude and latitude columns and the coordinate reference system (CRS).</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"long"</span>, <span class="st">"lat"</span>), </span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Group the data by 'PartID' and create a time sequence within each group.</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_sequence =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ungroup the data.</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="ot">-&gt;</span> trajectory_sf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the trajectory of 'PartID' "XXX" using the 'mapview' function.</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXXX"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="home" class="level3">
-<h3 class="anchored" data-anchor-id="home">Home</h3>
+<section id="how-to-set-the-journey-from-home" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="how-to-set-the-journey-from-home"><span class="header-section-number">4.1</span> How to set the journey from home?</h2>
+<p><img src="GPS_Filter_2.jpg" class="img-fluid"></p>
 <p>This code performs spatial filtering and selection operations to find the last point at home for specific <code>PartID</code> values and all children in the <code>trajectory_sf</code> dataset. It also visualises the trajectory and home buffer for two different ‘PartID’ values (XXX and YYY) as examples. Make sure you have the necessary spatial libraries loaded for this code to work correctly.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the 'address' dataset to a spatial dataframe for home addresses.</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>address <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"home_long"</span>, <span class="st">"home_lat"</span>), </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="ot">-&gt;</span> home_address_sf</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the 'address' dataset to a spatial dataframe for school addresses.</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>address <span class="sc">%&gt;%</span> </span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"school_long"</span>, <span class="st">"school_lat"</span>), </span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="ot">-&gt;</span> school_address_sf</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a buffer around home addresses for further analysis.</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>home_address_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">27700</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4326</span>) <span class="ot">-&gt;</span> home_buffer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the 'address' dataset to a spatial dataframe for home addresses.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>address <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"home_long"</span>, <span class="st">"home_lat"</span>), </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="ot">-&gt;</span> home_address_sf</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the 'address' dataset to a spatial dataframe for school addresses.</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>address <span class="sc">%&gt;%</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"school_long"</span>, <span class="st">"school_lat"</span>), </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="ot">-&gt;</span> school_address_sf</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a buffer around home addresses for further analysis.</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>home_address_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">27700</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4326</span>) <span class="ot">-&gt;</span> home_buffer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' XXX: Visualize trajectory and home buffer.</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>)) <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_buffer <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' XXX within the home buffer and select the time_sequence.</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> <span class="fu">tail</span>()</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' YYY: Visualize trajectory and home buffer.</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>)) <span class="sc">+</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_buffer <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' YYY within the home buffer and select the time_sequence.</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> <span class="fu">tail</span>()</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co"># For all children: Filter trajectories within the home buffer and select the last point at home.</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PartID, time_sequence) <span class="sc">%&gt;%</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>(time_sequence) <span class="sc">==</span> <span class="fu">n</span>()) <span class="ot">-&gt;</span> last_point_at_home</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' XXX: Visualize trajectory and home buffer.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>)) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_buffer <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' XXX within the home buffer and select the time_sequence.</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> <span class="fu">tail</span>()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' YYY: Visualize trajectory and home buffer.</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>)) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_buffer <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' YYY within the home buffer and select the time_sequence.</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> <span class="fu">tail</span>()</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># For all children: Filter trajectories within the home buffer and select the last point at home.</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(home_buffer) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PartID, time_sequence) <span class="sc">%&gt;%</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>(time_sequence) <span class="sc">==</span> <span class="fu">n</span>()) <span class="ot">-&gt;</span> last_point_at_home</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="school" class="level3">
-<h3 class="anchored" data-anchor-id="school">School</h3>
-<p>This code visualizes the trajectories, home addresses, school addresses, and school buildings for specific ‘PartID’ values and identifies the first point at school for each ‘PartID’. Make sure you have the necessary spatial libraries loaded for this code to work correctly.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the school building shapefile.</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>school_building <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="st">"gis/scottishschool_4326.shp"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' XXX: Visualize trajectory, home address, school address, and school building.</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>)) <span class="sc">+</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_building)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' XXX within the school building and select the time_sequence.</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize a slice of the trajectory for 'PartID' XXX.</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">246</span><span class="sc">:</span><span class="dv">310</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>()</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' YYY: Visualize trajectory, home address, school address, and school building.</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>)) <span class="sc">+</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_building)</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' YYY within the school building and select the time_sequence.</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize a specific time sequence for 'PartID' YYY.</span></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">236</span><span class="sc">:</span><span class="dv">331</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>()</span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="co"># For all children: Filter trajectories within the school building and select the first point at school.</span></span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PartID, time_sequence) <span class="sc">%&gt;%</span></span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>(time_sequence) <span class="sc">==</span> <span class="dv">1</span>) <span class="ot">-&gt;</span> first_point_at_school</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="how-to-set-when-they-arrive-at-school" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="how-to-set-when-they-arrive-at-school"><span class="header-section-number">4.2</span> How to set when they arrive at School</h2>
+<p>This code visualises the trajectories, home addresses, school addresses, and school buildings for specific ‘PartID’ values and identifies the first point at school for each ‘PartID’. Make sure you have the necessary spatial libraries loaded for this code to work correctly.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the school building shapefile.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>school_building <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="st">"gis/scottishschool_4326.shp"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' XXX: Visualize trajectory, home address, school address, and school building.</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>)) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>), <span class="at">col.regions =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_building)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' XXX within the school building and select the time_sequence.</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize a slice of the trajectory for 'PartID' XXX.</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"XXX"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">246</span><span class="sc">:</span><span class="dv">310</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>()</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for 'PartID' YYY: Visualize trajectory, home address, school address, and school building.</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>)) <span class="sc">+</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(home_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_address_sf <span class="sc">%&gt;%</span> <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>), <span class="at">col.regions =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>(school_building)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the trajectory for 'PartID' YYY within the school building and select the time_sequence.</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(time_sequence) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize a specific time sequence for 'PartID' YYY.</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PartID <span class="sc">==</span> <span class="st">"YYY"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">236</span><span class="sc">:</span><span class="dv">331</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mapview</span>()</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co"># For all children: Filter trajectories within the school building and select the first point at school.</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_filter</span>(school_building) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PartID, time_sequence) <span class="sc">%&gt;%</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>(time_sequence) <span class="sc">==</span> <span class="dv">1</span>) <span class="ot">-&gt;</span> first_point_at_school</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="finalising-trajectory" class="level3">
-<h3 class="anchored" data-anchor-id="finalising-trajectory">Finalising Trajectory</h3>
+<section id="finalising-trajectory" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="finalising-trajectory"><span class="header-section-number">4.3</span> Finalising Trajectory</h2>
 <p>This code first joins the <code>last_point_at_home</code> and <code>first_point_at_school</code> datasets to create ‘home_school_index.’ Then, it filters the <code>trajectory_sf</code> dataset to include only the data between home and school times for each <code>PartID</code>. Finally, it calculates the time taken for each <code>PartID</code> to travel from home to school by finding the difference between the maximum and minimum timestamps for each ‘PartID.’</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename the 'time_sequence' column in 'last_point_at_home' and join it with 'first_point_at_school'.</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>last_point_at_home <span class="sc">%&gt;%</span> </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">time_home =</span> time_sequence) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(first_point_at_school, <span class="at">by =</span> <span class="st">"PartID"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">time_school =</span> time_sequence) <span class="ot">-&gt;</span> home_school_index</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Left join 'trajectory_sf' with 'home_school_index' based on 'PartID'.</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(home_school_index, <span class="at">by =</span> <span class="st">"PartID"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filter the trajectory to include only data between home and school times.</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">&gt;=</span> time_home) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">&lt;=</span> time_school) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove the 'time_home' and 'time_school' columns.</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(time_home, time_school)) <span class="ot">-&gt;</span> trajectory_final</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the 'trajectory_final' dataset.</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_final)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the time taken for each 'PartID' to travel from home to school.</span></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>trajectory_final <span class="sc">%&gt;%</span></span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">time_taken =</span> <span class="fu">max</span>(timestamp) <span class="sc">-</span> <span class="fu">min</span>(timestamp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename the 'time_sequence' column in 'last_point_at_home' and join it with 'first_point_at_school'.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>last_point_at_home <span class="sc">%&gt;%</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">time_home =</span> time_sequence) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(first_point_at_school, <span class="at">by =</span> <span class="st">"PartID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">time_school =</span> time_sequence) <span class="ot">-&gt;</span> home_school_index</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Left join 'trajectory_sf' with 'home_school_index' based on 'PartID'.</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>trajectory_sf <span class="sc">%&gt;%</span> </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(home_school_index, <span class="at">by =</span> <span class="st">"PartID"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filter the trajectory to include only data between home and school times.</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">&gt;=</span> time_home) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(time_sequence <span class="sc">&lt;=</span> time_school) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove the 'time_home' and 'time_school' columns.</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(time_home, time_school)) <span class="ot">-&gt;</span> trajectory_final</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the 'trajectory_final' dataset.</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="fu">mapview</span>(trajectory_final)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the time taken for each 'PartID' to travel from home to school.</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>trajectory_final <span class="sc">%&gt;%</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PartID) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">time_taken =</span> <span class="fu">max</span>(timestamp) <span class="sc">-</span> <span class="fu">min</span>(timestamp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 
